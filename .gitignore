@@ -1,0 +1,9 @@
+.venv/
+.venv_win/
+jude/
+references/
+FFT Assignment.pdf
+team23_1m_ex2.wav
+team23_1m_removed.wav
+team23_5cm_ex2.wav
+__pycache__/
