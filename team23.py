@@ -106,7 +106,7 @@ wavfile.write("team23_5cm_ex2.wav", fs_5cm, clean_5cm.astype(np.float32))
 X_1m = fft(signal_1m)
 scale_band(X_1m, 0, 94.5, 0, fs_1m)
 scale_band(X_1m, 10960, fs_1m/2, 0, fs_1m)
-scale_band(X_5cm, 2000, 5000, 1.5, fs_5cm)
+scale_band(X_1m, 2000, 5000, 1.5, fs_1m)
 scale_band(X_1m, 100, 300, 1.5, fs_1m) # bass boost
 clean_1m = np.real(ifft(X_1m))
 
