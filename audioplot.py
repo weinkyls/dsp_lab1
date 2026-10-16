@@ -5,8 +5,8 @@ from scipy.fftpack import fft, ifft
 
 #EXCERCISE 1
 #import sampling rate and signal in np array
-fs_1m, signal_1m = wavfile.read("team23_1m.wav")
-fs_5cm, signal_5cm = wavfile.read("team23_5cm.wav")
+fs_1m, signal_1m = wavfile.read("original_speech_1m.wav")
+fs_5cm, signal_5cm = wavfile.read("original_speech_5cm.wav")
 
 # checks
 print(signal_1m.dtype)
@@ -85,32 +85,32 @@ plt.title("5 cm fft")
 plt.show()
 
 # EXCERCISE 2
-def scale_band(X, f1, f2, gain, fs):
+def set_band_gain(X, f1, f2, gain, fs):
     N = len(X)
     k1 = int(f1 * N / fs)
     k2 = int(f2 * N / fs)
-    X[k1:k2+1] *= gain # positive frequencies
-    X[N-k2:N-k1+1] *= gain # negative frequencies
+    X[k1:k2+1] = X[k1:k2+1] * gain # positive frequencies
+    X[N-k2:N-k1+1] = X[N-k2:N-k1+1] * gain # negative frequencies
 
 X_5cm = fft(signal_5cm)
 # removing noise
-scale_band(X_5cm, 0, 90, 0, fs_5cm) # low freq noise
-scale_band(X_5cm, 10720, fs_5cm/2, 0, fs_5cm) # high freq noise
-scale_band(X_5cm, 2000, 5000, 1.5, fs_5cm) # boost where the ear is most sensitive
-scale_band(X_5cm, 90, 140, 0.5, fs_5cm)   # attenuate plosives
-scale_band(X_5cm, 200, 500, 0.7, fs_5cm) # remove muddiness ?
+set_band_gain(X_5cm, 0, 90, 0, fs_5cm) # low freq noise
+set_band_gain(X_5cm, 10720, fs_5cm/2, 0, fs_5cm) # high freq noise
+set_band_gain(X_5cm, 2000, 5000, 1.5, fs_5cm) # boost where the ear is most sensitive
+set_band_gain(X_5cm, 90, 140, 0.5, fs_5cm)   # attenuate plosives
+# scale_band(X_5cm, 200, 500, 0.7, fs_5cm) # remove muddiness ?
 clean_5cm = np.real(ifft(X_5cm))
 
-wavfile.write("team23_5cm_ex2.wav", fs_5cm, clean_5cm.astype(np.float32))
+wavfile.write("enhanced_speech_5cm.wav", fs_5cm, clean_5cm.astype(np.float32))
 
 X_1m = fft(signal_1m)
-scale_band(X_1m, 0, 94.5, 0, fs_1m)
-scale_band(X_1m, 10960, fs_1m/2, 0, fs_1m)
-scale_band(X_1m, 2000, 5000, 1.5, fs_1m)
-scale_band(X_1m, 100, 300, 1.5, fs_1m) # bass boost
+set_band_gain(X_1m, 0, 94.5, 0, fs_1m)
+set_band_gain(X_1m, 10960, fs_1m/2, 0, fs_1m)
+set_band_gain(X_1m, 2000, 5000, 1.5, fs_1m)
+set_band_gain(X_1m, 100, 300, 1.5, fs_1m) # bass boost
 clean_1m = np.real(ifft(X_1m))
 
-wavfile.write("team23_1m_ex2.wav", fs_1m, clean_1m.astype(np.float32))
+wavfile.write("enhanced_speech_1m.wav", fs_1m, clean_1m.astype(np.float32))
 
 # check
 removed_1m = signal_1m - clean_1m
