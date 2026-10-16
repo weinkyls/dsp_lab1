@@ -30,7 +30,7 @@ plt.xlabel("Time (s)")
 plt.ylabel("Normalised Amplitude")
 plt.grid(True)
 plt.title("Time Domain Plot: 1 m Signal")
-plt.show()
+#plt.show()
 
 plt.figure()
 plt.plot(time_5cm, signal_5cm)
@@ -38,7 +38,7 @@ plt.xlabel("Time (s)")
 plt.ylabel("Normalised Amplitude")
 plt.grid(True)
 plt.title("Time Domain Plot: 5 cm Signal")
-plt.show()
+#plt.show()
 
 # 1ii) fft
 fft_5cm = fft(signal_5cm)
@@ -69,7 +69,7 @@ plt.axvspan(820, 10960, color="g", alpha=0.2) # consonant range
 plt.axvspan(10960, fs_5cm/2, color="grey", alpha=0.2)  # noise region
 plt.axvspan(20, 94.5, color="grey", alpha=0.2)
 plt.title("1 m fft")
-plt.show()
+#plt.show()
 
 plt.figure()
 plt.plot(freq_5cm, amp_5cm[:N_5cm//2])
@@ -82,7 +82,7 @@ plt.axvspan(1176, 10720, color="g", alpha=0.2) # consonant range
 plt.axvspan(10720, fs_5cm/2, color="grey", alpha=0.2)  # noise region
 plt.axvspan(20, 90, color="grey", alpha=0.2)
 plt.title("5 cm fft")
-plt.show()
+#plt.show()
 
 # EXCERCISE 2
 def set_band_gain(x, f1, f2, gain, fs):
@@ -105,8 +105,9 @@ def set_band_gain_window(x, f1, f2, outer_gain, transition_width, fs):
 X_5cm = fft(signal_5cm)
 
 set_band_gain_window(X_5cm, f1=90, f2=10720, outer_gain=0, transition_width=50, fs=fs_5cm)
+X_5cm_denoised = X_5cm.copy()
 set_band_gain(X_5cm, 2000, 5000, 1.5, fs_5cm) # boost where the ear is most sensitive
-set_band_gain(X_5cm, 90, 140, 0.5, fs_5cm)   # attenuate plosives
+set_band_gain(X_5cm, 90, 140, 0, fs_5cm)   # attenuate plosives
 # scale_band(X_5cm, 200, 500, 0.7, fs_5cm) # remove muddiness ?
 clean_5cm = np.real(ifft(X_5cm))
 
@@ -114,12 +115,24 @@ wavfile.write("enhanced_speech_5cm.wav", fs_5cm, clean_5cm.astype(np.float32))
 
 X_1m = fft(signal_1m)
 set_band_gain_window(X_1m, f1=94.5, f2=10960, outer_gain=0, transition_width=50, fs=fs_1m)
+X_1m_denoised = X_1m.copy()
 set_band_gain(X_1m, 2000, 5000, 1.5, fs_1m)
 set_band_gain(X_1m, 100, 300, 1.5, fs_1m) # bass boost
 clean_1m = np.real(ifft(X_1m))
 
+# make 1m louder to match 5cm
+rms_5cm = np.sqrt(np.mean(clean_5cm**2)) # average vol of 5cm
+rms_1m = np.sqrt(np.mean(clean_1m**2)) # average vol of 1m
+
+equalise = rms_5cm / rms_1m
+clean_1m = clean_1m * equalise
+
 wavfile.write("enhanced_speech_1m.wav", fs_1m, clean_1m.astype(np.float32))
 
-# check
-removed_1m = signal_1m - clean_1m
-wavfile.write("team23_1m_removed.wav", fs_1m, (removed_1m * 10).astype(np.float32))
+denoised_5cm = np.real(ifft(X_5cm_denoised))
+noise_removed_5cm = signal_5cm - denoised_5cm
+wavfile.write("team23_5cm_removed.wav", fs_5cm, (noise_removed_5cm * 10).astype(np.float32))
+
+denoised_1m = np.real(ifft(X_1m_denoised))
+noise_removed_1m = signal_1m - denoised_1m
+wavfile.write("team23_1m_removed.wav", fs_1m, (noise_removed_1m * 10).astype(np.float32))

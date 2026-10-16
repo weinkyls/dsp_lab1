@@ -35,7 +35,7 @@ distortion_gain = 20
 ae_mix = 0.5
 
 high_band = highpass(clean_5cm, ae_cutoff, fs_5cm) # cutoff low freq
-distorted_high = np.tanh(distortion_gain*high_band)/distortion_gain # add harmonics
+harmonics = np.tanh(distortion_gain*high_band)/distortion_gain # add harmonics
 
 # big bottom
 bass_cutoff = 190
@@ -43,8 +43,8 @@ compression_gain = 5
 bass_mix = 0.3
 
 low_band = lowpass(clean_5cm, bass_cutoff, fs_5cm)
-compressed_gain = np.tanh(compressed_gain*low_band)/compression_gain
+compressor = np.tanh(compression_gain *low_band)/compression_gain
 
-excited_5cm = clean_5cm + (exciter_mix * distorted_high) + (bass_mix * compressed_bass) # mix back into input signal
+excited_5cm = clean_5cm + (ae_mix * harmonics) + (bass_mix * compressor) # mix back into input signal
 
 wavfile.write("exciter_speech.wav", fs_5cm, excited_5cm.astype(np.float32))
