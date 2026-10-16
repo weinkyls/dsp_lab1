@@ -108,7 +108,6 @@ set_band_gain_window(X_5cm, f1=90, f2=10720, outer_gain=0, transition_width=50, 
 X_5cm_denoised = X_5cm.copy()
 set_band_gain(X_5cm, 2000, 5000, 1.5, fs_5cm) # boost where the ear is most sensitive
 set_band_gain(X_5cm, 90, 140, 0, fs_5cm)   # attenuate plosives
-# scale_band(X_5cm, 200, 500, 0.7, fs_5cm) # remove muddiness ?
 clean_5cm = np.real(ifft(X_5cm))
 
 wavfile.write("enhanced_speech_5cm.wav", fs_5cm, clean_5cm.astype(np.float32))
