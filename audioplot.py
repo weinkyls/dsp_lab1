@@ -85,40 +85,34 @@ plt.title("5 cm fft")
 #plt.show()
 
 # EXCERCISE 2
-def set_band_gain(x, f1, f2, gain_db, fs):
-    gain = 10**(gain_db / 20)
-    N = len(x)
-    k1 = int(f1 * N / fs)
-    k2 = int(f2 * N / fs)
-    x[k1:k2+1] = x[k1:k2+1] * gain # positive frequencies
-    x[N-k2:N-k1+1] = x[N-k2:N-k1+1] * gain # negative frequencies
 
 # windowing bandpass, to prevent ringing
-def set_band_gain_window(x, f1, f2, outer_gain_db, transition_width, fs):
+def set_band_gain_window(x, f1, f2, inner_gain_db, outer_gain_db, transition_width, fs):
     outer_gain = 10**(outer_gain_db / 20)
+    inner_gain = 10**(inner_gain_db / 20)
     N = len(x)
     bin_freq = np.arange(N)*(fs/N)
     bin_freq = np.minimum(bin_freq, fs - bin_freq)
     hz_outside_band = np.maximum(f1-bin_freq, bin_freq-f2)
     ramp_position = np.clip(hz_outside_band/transition_width,0,1)
-    bin_gain = 1 + (outer_gain-1)*ramp_position
+    bin_gain = inner_gain + (outer_gain-inner_gain)*ramp_position
     x[:]=x*bin_gain
 
 X_5cm = fft(signal_5cm)
 
-set_band_gain_window(X_5cm, f1=90, f2=10720, outer_gain_db=-np.inf, transition_width=50, fs=fs_5cm) # f1 and f2 from task 1
+set_band_gain_window(X_5cm, f1=90, f2=10720, inner_gain_db=0, outer_gain_db=-np.inf, transition_width=50, fs=fs_5cm) # f1 and f2 from task 1
 X_5cm_denoised = X_5cm.copy()
-set_band_gain(x=X_5cm, f1=2000, f2=6000, gain_db=3.5, fs=fs_5cm) # boost where the ear is most sensitive
-set_band_gain(x=X_5cm, f1=90, f2=140, gain_db=-np.inf, fs=fs_5cm)   # attenuate plosives
+set_band_gain_window(x=X_5cm, f1=2000, f2=6000, inner_gain_db=3.5, outer_gain_db=0, transition_width=500, fs=fs_5cm) # boost where the ear is most sensitive
+set_band_gain_window(x=X_5cm, f1=90, f2=140, inner_gain_db=-np.inf, outer_gain_db=0, transition_width=25, fs=fs_5cm)   # attenuate plosives
 clean_5cm = np.real(ifft(X_5cm))
 
 wavfile.write("enhanced_speech_5cm.wav", fs_5cm, clean_5cm.astype(np.float32))
 
 X_1m = fft(signal_1m)
-set_band_gain_window(X_1m, f1=94.5, f2=10960, outer_gain_db=-np.inf, transition_width=50, fs=fs_1m)
+set_band_gain_window(X_1m, f1=94.5, f2=10960, inner_gain_db=0, outer_gain_db=-np.inf, transition_width=50, fs=fs_1m)
 X_1m_denoised = X_1m.copy()
-set_band_gain(x=X_1m, f1=2000, f2=6000, gain_db=3.5, fs=fs_1m) # boost where the ear is most sensitive
-set_band_gain(x=X_1m, f1=100, f2=300, gain_db=3.5, fs=fs_1m) # bass boost
+set_band_gain_window(x=X_1m, f1=2000, f2=6000, inner_gain_db=3.5, outer_gain_db=0, transition_width=500, fs=fs_1m) # boost where the ear is most sensitive
+set_band_gain_window(x=X_1m, f1=100, f2=300, inner_gain_db=3.5, outer_gain_db=0, transition_width=50, fs=fs_1m) # bass boost
 clean_1m = np.real(ifft(X_1m))
 
 # make 1m louder to match 5cm
