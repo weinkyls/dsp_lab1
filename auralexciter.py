@@ -35,23 +35,23 @@ set_band_gain_window(x=X_5cm, f1=90, f2=140, inner_gain_db=-6, outer_gain_db=0, 
 clean_5cm = np.real(ifft(X_5cm))
 
 # aural exciter
-ae_cutoff = 3000
+ae_cutoff = 2000
 distortion_gain = 20
-ae_mix = 0.5
+ae_mix = 1.0
 
-high_band = highpass(clean_5cm, ae_cutoff, 3000, fs_5cm) # cutoff low freq
+high_band = highpass(clean_5cm, ae_cutoff, 500, fs_5cm) # pass fully above 2500 Hz
 harmonics = np.tanh(distortion_gain*high_band)/distortion_gain # add harmonics
 
 # big bottom
 bass_cutoff = 190
 compression_gain = 5
-bass_mix = 0.3
+bass_mix = 0.1
 
 low_band = lowpass(clean_5cm, bass_cutoff, 190, fs_5cm)
 soft_clipping = np.tanh(compression_gain *low_band)/compression_gain
 
 # select output harmonics
-harm_band_low = 4000
+harm_band_low = 2500
 harm_band_high = 8000
 transition_width = 500
 
@@ -63,3 +63,33 @@ output_harmonics = np.real(ifft(X_harm))
 excited_5cm = clean_5cm + (ae_mix * output_harmonics) + (bass_mix * soft_clipping) # mix back into input signal
 
 wavfile.write("exciter_speech.wav", fs_5cm, excited_5cm.astype(np.float32))
+
+N_5cm = len(signal_5cm)
+fft_original = fft(signal_5cm)
+fft_excited = fft(excited_5cm)
+
+freq_5cm = np.arange(1, N_5cm//2)*(fs_5cm/N_5cm)
+amp_original = 20*np.log10(np.abs(fft_original))
+amp_excited = 20*np.log10(np.abs(fft_excited))
+
+# figure 1 original signal
+plt.figure()
+plt.figure(figsize=(9,4 ))
+plt.plot(freq_5cm, amp_original[1:N_5cm//2])
+plt.xscale("log")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Amplitude (dB)")
+plt.grid(True, which="major", alpha=0.3)
+plt.title("Original 5cm signal fft")
+plt.savefig("original_5cm_fft.svg")
+
+# figure 2 excited signal
+plt.figure()
+plt.figure(figsize=(9,4 ))
+plt.plot(freq_5cm, amp_excited[1:N_5cm//2])
+plt.xscale("log")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Amplitude (dB)")
+plt.grid(True, which="major", alpha=0.3)
+plt.title("Excited 5cm signal fft")
+plt.savefig("excited_5cm_fft.svg")
