@@ -8,9 +8,6 @@ from scipy.fftpack import fft, ifft
 fs_1m, signal_1m = wavfile.read("original_speech_1m.wav")
 fs_5cm, signal_5cm = wavfile.read("original_speech_5cm.wav")
 
-# checks
-print(signal_1m.dtype)
-print(signal_1m.shape, signal_5cm.shape)
 
 # 1i) normalise
 signal_1m = signal_1m / np.iinfo(signal_1m.dtype).max
@@ -19,70 +16,67 @@ signal_5cm = signal_5cm / np.iinfo(signal_5cm.dtype).max
 # construct time array
 N_1m = signal_1m.size 
 time_1m = np.arange(N_1m)/fs_1m
-
 N_5cm = signal_5cm.size 
 time_5cm = np.arange(N_5cm)/fs_5cm
 
 # plot in time domain, normalised amplitudes v time
 plt.figure()
+plt.subplot(2,2,1)
 plt.plot(time_1m, signal_1m)
 plt.xlabel("Time (s)")
 plt.ylabel("Normalised Amplitude")
 plt.grid(True)
 plt.title("Time Domain Plot: 1 m Signal")
-#plt.show()
 
-plt.figure()
+plt.subplot(2,2,2)
 plt.plot(time_5cm, signal_5cm)
 plt.xlabel("Time (s)")
 plt.ylabel("Normalised Amplitude")
 plt.grid(True)
 plt.title("Time Domain Plot: 5 cm Signal")
-#plt.show()
 
 # 1ii) fft
 fft_5cm = fft(signal_5cm)
 fft_1m = fft(signal_1m)
 
-# construct freq array (positive)
+# construct freq array (positive only)
 freq_1m = np.arange(N_1m//2) * fs_1m / N_1m
 freq_5cm = np.arange(N_5cm//2) * fs_5cm / N_5cm
 
 # log + magnitude
 amp_5cm = 20*np.log10(np.abs(fft_5cm))
 amp_1m = 20*np.log10(np.abs(fft_1m))
-
 peaks_1m = np.array([186.1, 204.6, 296.17, 350])
-k_1m = (peaks_1m * N_1m / fs_1m).astype(int)
+peaks_5cm = np.array([166.95, 202.92, 267.29])
 
-peaks_5cm = np.array([166.95, 202.92, 267.29, 337.69])
-k_5cm = (peaks_5cm * N_5cm / fs_5cm).astype(int)
-
-plt.figure()
+plt.subplot(2,2,3)
 plt.plot(freq_1m, amp_1m[:N_1m//2])
 plt.xscale("log")
 plt.xlabel("Frequency (Hz)")
 plt.ylabel("Amplitude (dB)")
 plt.grid(True, which="both", linestyle=":", linewidth=0.5)
-plt.plot(peaks_1m, amp_1m[k_1m], "ro")
-plt.axvspan(820, 10960, color="g", alpha=0.2) # consonant range
-plt.axvspan(10960, fs_5cm/2, color="grey", alpha=0.2)  # noise region
+for f0 in peaks_1m:
+    plt.axvline(f0, color="r", linestyle="--", linewidth=0.8, label="Fundamental Frequency" if f0 == peaks_1m[0] else None)
+plt.axvspan(820, 10960, color="g", alpha=0.2, label="Consonant") # consonant range
+plt.axvspan(10960, fs_5cm/2, color="grey", alpha=0.2, label="Noise")  # noise region
 plt.axvspan(20, 94.5, color="grey", alpha=0.2)
+plt.legend()
 plt.title("1 m fft")
-#plt.show()
 
-plt.figure()
+plt.subplot(2,2,4)
 plt.plot(freq_5cm, amp_5cm[:N_5cm//2])
 plt.xscale("log")
 plt.xlabel("Frequency (Hz)")
 plt.ylabel("Amplitude (dB)")
 plt.grid(True, which="both", linestyle=":", linewidth=0.5)
-plt.plot(peaks_5cm, amp_5cm[k_5cm], "ro")
-plt.axvspan(1176, 10720, color="g", alpha=0.2) # consonant range
-plt.axvspan(10720, fs_5cm/2, color="grey", alpha=0.2)  # noise region
+for f0 in peaks_5cm:
+    plt.axvline(f0, color="r", linestyle="--", linewidth=0.8, label="Fundamental Frequency" if f0 == peaks_5cm[0] else None)
+plt.axvspan(1176, 10720, color="g", alpha=0.2, label="Consonant") # consonant range
+plt.axvspan(10720, fs_5cm/2, color="grey", alpha=0.2, label="Noise")  # noise region
 plt.axvspan(20, 90, color="grey", alpha=0.2)
+plt.legend()
 plt.title("5 cm fft")
-#plt.show()
+plt.show()
 
 # EXCERCISE 2
 
@@ -124,6 +118,7 @@ clean_1m = clean_1m * equalise
 
 wavfile.write("enhanced_speech_1m.wav", fs_1m, clean_1m.astype(np.float32))
 
+# used for checking
 denoised_5cm = np.real(ifft(X_5cm_denoised))
 noise_removed_5cm = signal_5cm - denoised_5cm
 wavfile.write("team23_5cm_removed.wav", fs_5cm, (noise_removed_5cm * 10).astype(np.float32))
