@@ -1,6 +1,7 @@
 .venv/
 .venv_win/
 jude/
+euan/
 references/
 FFT Assignment.pdf
 enhanced_speech_1m.wav

@@ -97,7 +97,7 @@ X_5cm = fft(signal_5cm)
 set_band_gain_window(X_5cm, f1=90, f2=10720, inner_gain_db=0, outer_gain_db=-np.inf, transition_width=50, fs=fs_5cm) # f1 and f2 from task 1
 X_5cm_denoised = X_5cm.copy()
 set_band_gain_window(x=X_5cm, f1=2000, f2=6000, inner_gain_db=3.5, outer_gain_db=0, transition_width=500, fs=fs_5cm) # boost where the ear is most sensitive
-set_band_gain_window(x=X_5cm, f1=90, f2=140, inner_gain_db=-np.inf, outer_gain_db=0, transition_width=25, fs=fs_5cm)   # attenuate plosives
+set_band_gain_window(x=X_5cm, f1=90, f2=140, inner_gain_db=-np.inf, outer_gain_db=0, transition_width=25, fs=fs_5cm) # attenuate plosives
 clean_5cm = np.real(ifft(X_5cm))
 
 wavfile.write("enhanced_speech_5cm.wav", fs_5cm, clean_5cm.astype(np.float32))
