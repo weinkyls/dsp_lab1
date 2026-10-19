@@ -29,6 +29,8 @@ plt.xlabel("Time (s)")
 plt.ylabel("Normalised Amplitude")
 plt.grid(True)
 plt.title("Time Domain Plot: 1 m Signal")
+plt.tight_layout()
+plt.savefig(folder / "1mTimeDomain.svg", format="svg", bbox_inches="tight")
 #plt.show()
 
 #plt.figure()
@@ -38,6 +40,8 @@ plt.xlabel("Time (s)")
 plt.ylabel("Normalised Amplitude")
 plt.grid(True)
 plt.title("Time Domain Plot: 5 cm Signal")
+plt.tight_layout()
+plt.savefig(folder / "5cmTimeDomain.svg", format="svg", bbox_inches="tight")
 #plt.show()
 
 # 1ii) fft
@@ -68,7 +72,9 @@ plt.axvspan(820, 10960, color="g", alpha=0.2, label="Consonant") # consonant ran
 plt.axvspan(10960, fs_5cm/2, color="grey", alpha=0.2, label="Noise")  # noise region
 plt.axvspan(20, 94.5, color="grey", alpha=0.2)
 plt.legend()
-plt.title("1 m fft")
+plt.title("1 m FFT")
+plt.tight_layout()
+plt.savefig(folder / "1mFFT.svg", format="svg", bbox_inches="tight")
 #plt.show()
 
 #plt.figure()
@@ -84,7 +90,9 @@ plt.axvspan(1176, 10720, color="g", alpha=0.2, label="Consonant") # consonant ra
 plt.axvspan(10720, fs_5cm/2, color="grey", alpha=0.2, label="Noise")  # noise region
 plt.axvspan(20, 90, color="grey", alpha=0.2)
 plt.legend()
-plt.title("5 cm fft")
+plt.title("5 cm FFT")
+plt.tight_layout()
+plt.savefig(folder / "5cmFFT.svg", format="svg", bbox_inches="tight")
 #plt.show()
 
 # EXCERCISE 2
