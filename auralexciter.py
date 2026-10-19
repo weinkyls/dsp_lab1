@@ -62,7 +62,7 @@ output_harmonics = np.real(ifft(X_harm))
 
 excited_5cm = clean_5cm + (ae_mix * output_harmonics) + (bass_mix * soft_clipping) # mix back into input signal
 
-wavfile.write("03.wav", fs_5cm, excited_5cm.astype(np.float32))
+wavfile.write("exciter_speech.wav", fs_5cm, excited_5cm.astype(np.float32))
 
 N_5cm = len(signal_5cm)
 fft_original = fft(signal_5cm)
@@ -91,5 +91,5 @@ plt.xscale("log")
 plt.xlabel("Frequency (Hz)")
 plt.ylabel("Amplitude (dB)")
 plt.grid(True, which="major", alpha=0.3)
-plt.title("Excited 5cm signal fft - Version 03")
-plt.savefig("03_fft.svg")
+plt.title("Excited 5cm signal fft")
+plt.savefig("exciter_speech.svg")
