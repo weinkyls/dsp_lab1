@@ -23,7 +23,7 @@ time_5cm = np.arange(N_5cm)/fs_5cm
 
 # plot in time domain, normalised amplitudes v time
 plt.figure()
-plt.subplot(2,2,1)
+plt.subplot(3,2,1)
 plt.plot(time_1m, signal_1m)
 plt.xlabel("Time (s)")
 plt.ylabel("Normalised Amplitude")
@@ -31,7 +31,8 @@ plt.grid(True)
 plt.title("Time Domain Plot: 1 m Signal")
 #plt.show()
 
-plt.subplot(2,2,2)
+#plt.figure()
+plt.subplot(3,2,2)
 plt.plot(time_5cm, signal_5cm)
 plt.xlabel("Time (s)")
 plt.ylabel("Normalised Amplitude")
@@ -54,7 +55,8 @@ amp_1m = 20*np.log10(np.abs(fft_1m))
 peaks_1m = np.array([186.1, 204.6, 296.17, 350])
 peaks_5cm = np.array([166.95, 202.92, 267.29])
 
-plt.subplot(2,2,3)
+#plt.figure()
+plt.subplot(3,2,3)
 plt.plot(freq_1m, amp_1m[:N_1m//2])
 plt.xscale("log")
 plt.xlabel("Frequency (Hz)")
@@ -67,8 +69,10 @@ plt.axvspan(10960, fs_5cm/2, color="grey", alpha=0.2, label="Noise")  # noise re
 plt.axvspan(20, 94.5, color="grey", alpha=0.2)
 plt.legend()
 plt.title("1 m fft")
+#plt.show()
 
-plt.subplot(2,2,4)
+#plt.figure()
+plt.subplot(3,2,4)
 plt.plot(freq_5cm, amp_5cm[:N_5cm//2])
 plt.xscale("log")
 plt.xlabel("Frequency (Hz)")
@@ -81,7 +85,7 @@ plt.axvspan(10720, fs_5cm/2, color="grey", alpha=0.2, label="Noise")  # noise re
 plt.axvspan(20, 90, color="grey", alpha=0.2)
 plt.legend()
 plt.title("5 cm fft")
-plt.show()
+#plt.show()
 
 # EXCERCISE 2
 # windowing bandpass, to prevent ringing
@@ -101,7 +105,7 @@ def avg_band_lvl(amp, f1, f2, N, fs):
     k2 = int(f2 * N / fs)
     return np.mean(amp[k1:k2+1])
 
-# calculation for bass boost, starting at lowest fundamental
+# calculation for bass boost, starting at lowest vowel fundamental freq
 bass_1m = avg_band_lvl(amp_1m, 160, 300, N_1m, fs_1m)
 mids_1m = avg_band_lvl(amp_1m, 1000, 2000, N_1m, fs_1m)
 bass_5cm = avg_band_lvl(amp_5cm, 160, 300, N_5cm, fs_5cm)
@@ -162,7 +166,7 @@ def plot_spectrum(original, enhanced, fs, title, filename):
     db_enhanced = 20 * np.log10(np.maximum(amp_enhanced, 1e-10))
 
     # Draw the graph
-    plt.figure(figsize=(9, 5))
+    #plt.figure(figsize=(9, 5))
     plt.semilogx(freq[1:], db_original[1:], label="Original")
     plt.semilogx(freq[1:], db_enhanced[1:], label="Enhanced")
 
@@ -171,21 +175,19 @@ def plot_spectrum(original, enhanced, fs, title, filename):
     plt.title(title)
     plt.legend()
     plt.grid(True, which="both", alpha=0.3)
-    plt.tight_layout()
+    #plt.tight_layout()
 
     # Save as a vector graphic
-    plt.savefig(folder / filename, format="svg", bbox_inches="tight")
-    plt.show()
+    #plt.savefig(folder / filename, format="svg", bbox_inches="tight")
+    #plt.show()
 
+#plt.figure(figsize=(9, 5))
+plt.subplot(3, 2, 5)
+plot_spectrum(signal_5cm, clean_5cm, fs_5cm, "5 cm: Original vs Enhanced", "ex2_5cm_spectrum.svg")
+#plt.show()
 
-plot_spectrum(
-    signal_5cm, clean_5cm, fs_5cm,
-    "5 cm Recording: Original vs Enhanced",
-    "ex2_5cm_spectrum.svg"
-)
-
-plot_spectrum(
-    signal_1m, clean_1m, fs_1m,
-    "1 m Recording: Original vs Enhanced",
-    "ex2_1m_spectrum.svg"
-)
+#plt.figure(figsize=(9, 5))
+plt.subplot(3, 2, 6)
+plot_spectrum(signal_1m, clean_1m, fs_1m, "1 m: Original vs Enhanced", "ex2_1m_spectrum.svg")
+plt.tight_layout()
+plt.show()
