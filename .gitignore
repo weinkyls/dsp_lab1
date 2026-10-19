@@ -12,3 +12,5 @@ __pycache__/
 exciter_speech.wav
 ex2_1m_spectrum.svg
 ex2_5cm_spectrum.svg
+03_fft.svg
+03.wav
